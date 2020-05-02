@@ -48,7 +48,7 @@ class ResultFilters:
 
                     min_distance = min(min_distance, distance)
                 request_list_score.append(
-                    (distance, request)
+                    (min_distance, request)
                 )
 
         # We take top 10
