@@ -21,7 +21,8 @@ class Messages:
         'eg. time constraints, payment constraints'
     )
     LOCATION_PICKUP_REQUEST = 'Now, what is your pickup location?'
-    LOCATION_DROPOFF_REQUEST = 'What is your dropoff location?'
+    LOCATION_DROPOFF_REQUEST = 'What is your first dropoff location?'
+    LOCATION_DROPOFF_REQUEST_NEXT = 'Enter next dropoff location'
     LOCATION_NUM_DROPOFF_REQUEST = 'How many dropoffs do you have?'
     PRICE_REQUEST = 'What is your preferred price? eg. 10.50, 20'
     TIME_REQUEST = 'What is your preferred time for pickup? eg. 10pm, 9:10am'

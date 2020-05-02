@@ -198,7 +198,7 @@ def location_dropoff(update, context):
         context.chat_data['location_dropoffs'].append(user_location)
 
     if len(context.chat_data['location_dropoffs']) < context.chat_data['num_dropoffs']:
-        update.message.reply_text('Enter next dropoff location')
+        update.message.reply_text(Messages.LOCATION_DROPOFF_REQUEST_NEXT)
         return LOCATION_DROPOFF
 
     update.message.reply_text(Messages.PRICE_REQUEST)
