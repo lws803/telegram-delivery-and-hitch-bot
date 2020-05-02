@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_location(text_location):
+    text_location += ' singapore'
+    # FIXME: Hack to refine and confine searches to singapore
     latlng = None
     try:
         latlng = geocoder.google(text_location).latlng

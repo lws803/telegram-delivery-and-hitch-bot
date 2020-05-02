@@ -18,6 +18,7 @@ from common.models import Blacklist, Report, Request
 from common.mysql_connector import MySQLConnector
 from helpers.helpers import get_location_json, get_locations_json, get_location
 from matcher.matcher import Matcher
+from helpers.filters import ResultFilters
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -272,7 +273,6 @@ def cancel(update, context):
     logger.info("User %s canceled the conversation.", user.first_name)
     with mysql_connector.session() as db_session:
         my_request = db_session.query(Request).filter_by(chat_id=update.message.chat_id).one_or_none()
-        
         if my_request:
             my_request.state = StateType.DONE
         db_session.commit()
@@ -307,12 +307,55 @@ def refresh(update, context):
     return ConversationHandler.END
 
 
+def search_pickup(update, context):
+    args = context.args
+    user = update.message.from_user
+    logger.info(
+        "User {} searching the list for dropoffs that match. {}".format(user.first_name, str(args))
+    )
+
+    update.message.reply_text('Searching... {}'.format(' '.join(args)),
+                              reply_markup=ReplyKeyboardRemove())
+
+    context.job_queue.run_once(search_handler, 0, context=(update, context, 'pickup'))
+
+    return ConversationHandler.END
+
+
+def search_dropoff(update, context):
+    args = context.args
+    user = update.message.from_user
+    logger.info(
+        "User {} searching the list for pickups that match. {}".format(user.first_name, str(args))
+    )
+
+    update.message.reply_text('Searching... {}'.format(' '.join(args)),
+                              reply_markup=ReplyKeyboardRemove())
+
+    context.job_queue.run_once(search_handler, 0, context=(update, context, 'dropoff'))
+
+    return ConversationHandler.END
+
+
+def search_handler(context: telegram.ext.CallbackContext):
+    update, context, search_type = context.job.context
+    if not context.args:
+        update.message.reply_text(Errors.SEARCH_ERROR)
+        return
+
+    location_dict = get_location(' '.join(context.args))
+    if search_type == 'dropoff':
+        get_relevant_requests(update, context, dropoff_dict=location_dict)
+    else:
+        get_relevant_requests(update, context, pickup_dict=location_dict)
+
+
 def refresh_handler(context: telegram.ext.CallbackContext):
     update, context = context.job.context
     get_relevant_requests(update, context)
 
 
-def get_relevant_requests(update, context):
+def get_relevant_requests(update, context, pickup_dict=None, dropoff_dict=None):
     with mysql_connector.session() as db_session:
         db_session.commit()
         curr_request = (
@@ -339,6 +382,14 @@ def get_relevant_requests(update, context):
             )
             .all()
         )
+
+        if pickup_dict or dropoff_dict:
+            all_relevant_requests = ResultFilters.filter_location(
+                all_relevant_requests,
+                coordinates_pickup=pickup_dict['latlng'] if pickup_dict else None,
+                coordinates_dropoff=dropoff_dict['latlng'] if dropoff_dict else None
+            )
+
         update.message.reply_text(f'We have {len(all_relevant_requests)} requests now...')
 
         for request in all_relevant_requests:
@@ -448,6 +499,8 @@ def main():
         entry_points=[
             CommandHandler('start', start),
             CommandHandler('refresh', refresh),
+            CommandHandler('search_dropoff', search_dropoff),
+            CommandHandler('search_pickup', search_pickup),
             CommandHandler('cancel', cancel),
             CommandHandler('help', help_me)
         ],

@@ -1,6 +1,6 @@
 
 class Errors:
-    NO_USERNAME='You need a telegram handle/ username before using the bot.'
+    NO_USERNAME = 'You need a telegram handle/ username before using the bot.'
     BAN_MESSAGE = 'You have been banned, please contact administrator for help.'
     INCORRECT_TIME = (
         'Preferred time could not be recognized.\n'
@@ -10,6 +10,10 @@ class Errors:
     GENERIC_ERROR = 'Error encountered please contact adminstrator.'
     NO_REQUEST_FOUND = 'Seems like your request has expired, please repost! /start'
     NO_LONGER_ACTIVE = 'Match is no longer active'
+    SEARCH_ERROR = (
+        '/search_dropoff or /search_pickup must be followed by the location itself.\n'
+        'eg. /search_dropoff Clementi MRT'
+    )
 
 class Messages:
     ADDITIONAL_INFO_REQUEST = (
