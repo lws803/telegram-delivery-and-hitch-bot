@@ -14,6 +14,9 @@ class Errors:
         '/search_dropoff or /search_pickup must be followed by the location itself.\n'
         'eg. /search_dropoff Clementi MRT'
     )
+    FEATURE_INVALID = (
+        'This feature is only available for %s.'
+    )
 
 class Messages:
     ADDITIONAL_INFO_REQUEST = (

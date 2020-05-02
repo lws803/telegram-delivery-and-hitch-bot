@@ -16,9 +16,11 @@ from common.exceptions import NoUserNameException
 from common.messages import Errors, Messages
 from common.models import Blacklist, Report, Request
 from common.mysql_connector import MySQLConnector
-from helpers.helpers import get_location_json, get_locations_json, get_location
-from matcher.matcher import Matcher
 from helpers.filters import ResultFilters
+from helpers.helpers import (check_request_exists, check_search_user_valid,
+                             get_location, get_location_json,
+                             get_locations_json)
+from matcher.matcher import Matcher
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -342,6 +344,12 @@ def search_handler(context: telegram.ext.CallbackContext):
     if not context.args:
         update.message.reply_text(Errors.SEARCH_ERROR)
         return
+    with mysql_connector.session() as db_session:
+        try:
+            check_request_exists(db_session, update)
+            check_search_user_valid(db_session, update)
+        except Exception:
+            return
 
     location_dict = get_location(' '.join(context.args))
     if search_type == 'dropoff':
@@ -352,12 +360,18 @@ def search_handler(context: telegram.ext.CallbackContext):
 
 def refresh_handler(context: telegram.ext.CallbackContext):
     update, context = context.job.context
+    with mysql_connector.session() as db_session:
+        try:
+            check_request_exists(db_session, update)
+            check_search_user_valid(db_session, update)
+        except Exception:
+            return
+
     get_relevant_requests(update, context)
 
 
 def get_relevant_requests(update, context, pickup_dict=None, dropoff_dict=None):
     with mysql_connector.session() as db_session:
-        db_session.commit()
         curr_request = (
             db_session.query(Request)
             .filter_by(
@@ -367,10 +381,6 @@ def get_relevant_requests(update, context, pickup_dict=None, dropoff_dict=None):
             .one_or_none()
         )
         context.chat_data['chat_id'] = update.message.chat_id
-        if not curr_request:
-            logger.warning(f'No request found for {update.message.chat_id}')
-            update.message.reply_text(Errors.NO_REQUEST_FOUND)
-            return
 
         all_relevant_requests = (
             db_session.query(Request)
