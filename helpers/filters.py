@@ -1,5 +1,6 @@
 import math
 import json
+import operator
 
 
 def get_distance(origin, destination):
@@ -52,4 +53,6 @@ class ResultFilters:
                 )
 
         # We take top 10
-        return [request[1] for request in sorted(request_list_score)][:10]
+        return [request[1] for request in sorted(
+            request_list_score, key=operator.itemgetter(0)
+        )][:10]
