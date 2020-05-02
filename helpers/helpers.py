@@ -15,7 +15,7 @@ def get_location(text_location):
     try:
         latlng = geocoder.google(text_location + ' singapore').latlng
         if not latlng:
-            logger.warning(f'Cant find coordinates for {str(latlng)}')
+            logger.warning(f'Cant find coordinates for {str(text_location)}')
         return dict(
             text=text_location,
             latlng=latlng
