@@ -37,5 +37,10 @@ class Messages:
         'This list will be cleaned after every hour to make sure that no requests here are stale.'
         '\n\n'
         'Once your request ticket has been created for driver/ customer, you may refresh the list'
-        ' using /refresh to see all available listings.'
+        ' using /list to see all available listings.'
+    )
+    POST_ADDITIONAL_INFO_REQUEST = (
+        'Now use /list to list down all available requests or use the /search_dropoff or the '
+        '/search_pickup commands to refine your search.\n\n'
+        'eg. /search_pickup Clementi MRT'
     )

@@ -414,14 +414,14 @@ def process_request(context: telegram.ext.CallbackContext):
 
     except NoUserNameException:
         update.message.reply_text(Errors.NO_USERNAME)
-        return ConversationHandler.END
+        return
 
     except Exception as e:
         update.message.reply_text(Errors.GENERIC_ERROR)
         logger.warning(str(e))
-        return ConversationHandler.END
+        return
 
-    # get_relevant_requests(update, context)
+    update.message.reply_text(Messages.POST_ADDITIONAL_INFO_REQUEST)
 
 
 def button(update, context):
