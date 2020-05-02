@@ -11,19 +11,22 @@ logger = logging.getLogger(__name__)
 
 
 def get_location(text_location):
-    text_location += ' singapore'
     # FIXME: Hack to refine and confine searches to singapore
-    latlng = None
     try:
-        latlng = geocoder.google(text_location).latlng
+        latlng = geocoder.google(text_location + ' singapore').latlng
+        if not latlng:
+            logger.warning(f'Cant find coordinates for {str(latlng)}')
+        return dict(
+            text=text_location,
+            latlng=latlng
+        )
     except Exception as e:
         logger.warning(str(e))
 
-    location_dict = dict(
+    return dict(
         text=text_location,
-        latlng=latlng
+        latlng=None
     )
-    return location_dict
 
 
 def get_location_json(text_location):
