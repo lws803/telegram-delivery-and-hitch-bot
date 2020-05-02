@@ -14,6 +14,7 @@ pip install -r requirements.txt
 ```bash
 MYSQL_PROD
 TELE_KEY_PROD
+GOOGLE_API_KEY  # For google maps
 ```
 4. Run alembic script `alembic upgrade head`
 5. Run the main service
