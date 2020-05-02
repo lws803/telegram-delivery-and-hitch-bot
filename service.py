@@ -295,7 +295,7 @@ def help_me(update, context):
     return ConversationHandler.END
 
 
-def refresh(update, context):
+def list_all(update, context):
     user = update.message.from_user
     logger.info("User %s refreshed the list.", user.first_name)
 
@@ -421,7 +421,7 @@ def process_request(context: telegram.ext.CallbackContext):
         logger.warning(str(e))
         return ConversationHandler.END
 
-    get_relevant_requests(update, context)
+    # get_relevant_requests(update, context)
 
 
 def button(update, context):
@@ -498,7 +498,7 @@ def main():
     location_info_handler = ConversationHandler(
         entry_points=[
             CommandHandler('start', start),
-            CommandHandler('refresh', refresh),
+            CommandHandler('list', list_all),
             CommandHandler('search_dropoff', search_dropoff),
             CommandHandler('search_pickup', search_pickup),
             CommandHandler('cancel', cancel),
