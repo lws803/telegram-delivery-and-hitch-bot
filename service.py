@@ -5,8 +5,6 @@ from datetime import datetime
 
 import parsedatetime
 import telegram.ext
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                       ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (CallbackQueryHandler, CommandHandler,
@@ -18,6 +16,7 @@ from common.exceptions import NoUserNameException
 from common.messages import Errors, Messages
 from common.models import Blacklist, Report, Request
 from common.mysql_connector import MySQLConnector
+from helpers.helpers import get_location_json, get_locations_json, get_location
 from matcher.matcher import Matcher
 
 # Enable logging
@@ -37,7 +36,10 @@ dp = updater.dispatcher
 bot = updater.bot
 
 
-ROLE, LOCATION_PICKUP, LOCATION_DROPOFF, PRICE, TIME, PACKAGE_TYPE, ADDITIONAL_INFO = range(7)
+(
+    ROLE, LOCATION_PICKUP, NUM_DROPOFFS, LOCATION_DROPOFF,
+    PRICE, TIME, PACKAGE_TYPE, ADDITIONAL_INFO
+) = range(8)
 
 
 def listing_formatter(request):
@@ -49,11 +51,17 @@ def listing_formatter(request):
             f'{request.additional_info}'
         )
     time_format = request.time.strftime('%d, %b %Y %I:%M %p')
+    pickup_location = json.loads(request.location_pickup)['text']
+    dropoff_locations = json.loads(request.location_dropoffs)
+    dropoff_text = 'Dropoffs:'
+    for count, dropoff_location in enumerate(dropoff_locations, start=1):
+        dropoff_text += '\n{}) {}'.format(count, dropoff_location['text'])
+
     return (
         '*Customer*\n'
         f'{request.first_name}\n'
-        f'Pickup: {request.location_pickup}\n'
-        f'Dropoff: {request.location_dropoff}\n'
+        f'Pickup: {pickup_location}\n'
+        f'{dropoff_text}\n'
         f'Time: {time_format}\n'
         f'Price: {request.price}\n'
         f'Package info: {request.package_type}\n'
@@ -93,8 +101,8 @@ def validate_add_to_db(context, update):
             )
         else:
             new_request = Request(
-                location_pickup=context.chat_data['location_pickup'],
-                location_dropoff=context.chat_data['location_dropoff'],
+                location_pickup=get_location_json(context.chat_data['location_pickup']),
+                location_dropoffs=get_locations_json(context.chat_data['location_dropoffs']),
                 chat_id=chat_id,
                 additional_info=context.chat_data['additional_info'],
                 state=StateType.ACTIVE,
@@ -161,6 +169,14 @@ def location_pickup(update, context):
 
     context.chat_data['location_pickup'] = user_location
 
+    update.message.reply_text(Messages.LOCATION_NUM_DROPOFF_REQUEST)
+    return NUM_DROPOFFS
+
+
+def num_dropoffs(update, context):
+    user = update.message.from_user
+    logger.info('Number of dropoffs for %s: %s', user.first_name, update.message.text)
+    context.chat_data['num_dropoffs'] = int(update.message.text)
     update.message.reply_text(Messages.LOCATION_DROPOFF_REQUEST)
     return LOCATION_DROPOFF
 
@@ -175,7 +191,14 @@ def location_dropoff(update, context):
     user_location = update.message.text
     logger.info('Location of %s: %s', user.first_name, update.message.text)
 
-    context.chat_data['location_dropoff'] = user_location
+    if 'location_dropoffs' not in context.chat_data:
+        context.chat_data['location_dropoffs'] = [user_location]
+    else:
+        context.chat_data['location_dropoffs'].append(user_location)
+
+    if len(context.chat_data['location_dropoffs']) < context.chat_data['num_dropoffs']:
+        update.message.reply_text('Enter next dropoff location')
+        return LOCATION_DROPOFF
 
     update.message.reply_text(Messages.PRICE_REQUEST)
     return PRICE
@@ -200,7 +223,7 @@ def time(update, context):
         (datetime(*time_struct[:6]) - datetime.now()).total_seconds() < 0,
     )):
         update.message.reply_text(
-            Errors.INCORRECT_TIME%datetime.now().strftime('%H:%M')
+            Errors.INCORRECT_TIME % datetime.now().strftime('%H:%M')
         )
         return TIME
 
@@ -217,8 +240,6 @@ def time(update, context):
 
 
 def package_type(update, context):
-    user = update.message.from_user
-    item_description = update.message.text
 
     if len(update.message.text) >= 250:
         update.message.reply_text(Errors.LENGTH_TOO_LONG)
@@ -431,10 +452,11 @@ def main():
             CommandHandler('help', help_me)
         ],
         states={
-            ROLE: [MessageHandler(Filters.regex('^(Driver|Hitcher or Customer)$'), role)],
+            ROLE: [MessageHandler(Filters.regex(r'^(Driver|Hitcher or Customer)$'), role)],
             LOCATION_PICKUP: [MessageHandler(Filters.text, location_pickup)],
+            NUM_DROPOFFS: [MessageHandler(Filters.regex(r'^[0-9]*$'), num_dropoffs)],
             LOCATION_DROPOFF: [MessageHandler(Filters.text, location_dropoff)],
-            PRICE: [MessageHandler(Filters.regex('^[0-9]+(\.[0-9][0-9])?$'), price)],
+            PRICE: [MessageHandler(Filters.regex(r'^[0-9]+(\.[0-9][0-9])?$'), price)],
             TIME: [MessageHandler(Filters.text, time)],
             PACKAGE_TYPE: [MessageHandler(Filters.text, package_type)],
             ADDITIONAL_INFO: [MessageHandler(Filters.text, additional_info)]

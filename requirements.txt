@@ -4,3 +4,4 @@ SQLAlchemy
 alembic
 mysql-connector-python
 redis
+geocoder

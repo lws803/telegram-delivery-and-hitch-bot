@@ -1,7 +1,7 @@
 from sqlalchemy import (BigInteger, Column, DateTime, Enum, Float, Integer,
                         String, func)
 from sqlalchemy.dialects.mysql import JSON
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import declarative_base
 
 from common.constants import RoleType, StateType
 
@@ -21,8 +21,8 @@ class Request(Base):
     id = Column(BigInteger, primary_key=True)
     role = Column(Enum(RoleType), nullable=False)
     chat_id = Column(BigInteger, nullable=False)
-    location_pickup = Column(String(250), nullable=True)
-    location_dropoff = Column(String(250), nullable=True)
+    location_pickup = Column(JSON, nullable=True)
+    location_dropoffs = Column(JSON, nullable=True)
     time = Column(DateTime, nullable=True)
     price = Column(Float, nullable=True)
     package_type = Column(String(250), nullable=True)

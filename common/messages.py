@@ -3,8 +3,8 @@ class Errors:
     NO_USERNAME='You need a telegram handle/ username before using the bot.'
     BAN_MESSAGE = 'You have been banned, please contact administrator for help.'
     INCORRECT_TIME = (
-        'Preferred time could not be recognized.'
-        'Please enter a time today that is past %s'
+        'Preferred time could not be recognized.\n'
+        'Please enter a time that is past and within 24 hours of %s.'
     )
     LENGTH_TOO_LONG = 'Message length is too long, please keep within 250 characters.'
     GENERIC_ERROR = 'Error encountered please contact adminstrator.'
@@ -17,7 +17,8 @@ class Messages:
         'eg. time constraints, payment constraints'
     )
     LOCATION_PICKUP_REQUEST = 'Now, what is your pickup location?'
-    LOCATION_DROPOFF_REQUEST = 'Now, what is your dropoff location?'
+    LOCATION_DROPOFF_REQUEST = 'What is your dropoff location?'
+    LOCATION_NUM_DROPOFF_REQUEST = 'How many dropoffs do you have?'
     PRICE_REQUEST = 'What is your preferred price? eg. 10.50, 20'
     TIME_REQUEST = 'What is your preferred time for pickup? eg. 10pm, 9:10am'
     PACKAGE_REQUEST = 'Describe your package!'
