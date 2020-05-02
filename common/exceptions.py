@@ -1,0 +1,3 @@
+
+class NoUserNameException(Exception):
+    pass

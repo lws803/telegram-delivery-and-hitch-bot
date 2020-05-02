@@ -1,0 +1,6 @@
+python-telegram-bot
+parsedatetime
+SQLAlchemy
+alembic
+mysql-connector-python
+redis
