@@ -1,2 +1,2 @@
 class RegexExpressions:
-    NO_COMMAND_SLASH = r'^[^\\]'
+    NO_COMMAND_SLASH = r'^[^\/]'
