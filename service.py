@@ -516,13 +516,13 @@ def main():
         ],
         states={
             ROLE: [MessageHandler(Filters.regex(r'^(Driver|Hitcher or Customer)$'), role)],
-            LOCATION_PICKUP: [MessageHandler(Filters.text, location_pickup)],
+            LOCATION_PICKUP: [MessageHandler(Filters.regex(r'^[^\*]'), location_pickup)],
             NUM_DROPOFFS: [MessageHandler(Filters.regex(r'^[0-9]*$'), num_dropoffs)],
-            LOCATION_DROPOFF: [MessageHandler(Filters.text, location_dropoff)],
+            LOCATION_DROPOFF: [MessageHandler(Filters.regex(r'^[^\*]'), location_dropoff)],
             PRICE: [MessageHandler(Filters.regex(r'^[0-9]+(\.[0-9][0-9])?$'), price)],
-            TIME: [MessageHandler(Filters.text, time)],
-            PACKAGE_TYPE: [MessageHandler(Filters.text, package_type)],
-            ADDITIONAL_INFO: [MessageHandler(Filters.text, additional_info)]
+            TIME: [MessageHandler(Filters.regex(r'^[^\*]'), time)],
+            PACKAGE_TYPE: [MessageHandler(Filters.regex(r'^[^\*]'), package_type)],
+            ADDITIONAL_INFO: [MessageHandler(Filters.regex(r'^[^\*]'), additional_info)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
