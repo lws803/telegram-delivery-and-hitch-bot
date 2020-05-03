@@ -132,6 +132,7 @@ def start(update, context):
             update.message.reply_text(Errors.BAN_MESSAGE)
             return ConversationHandler.END
 
+    context.chat_data = {}  # Clear chat data
     reply_keyboard = [['Driver', 'Hitcher or Customer']]
     update.message.reply_text(Messages.WELCOME_MESSAGE)
     update.message.reply_text(
@@ -363,7 +364,6 @@ def refresh_handler(context: telegram.ext.CallbackContext):
     with mysql_connector.session() as db_session:
         try:
             check_request_exists(db_session, update)
-            check_search_user_valid(db_session, update)
         except Exception:
             return
 
