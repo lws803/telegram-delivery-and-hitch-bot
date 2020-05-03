@@ -132,7 +132,6 @@ def start(update, context):
             update.message.reply_text(Errors.BAN_MESSAGE)
             return ConversationHandler.END
 
-    context.chat_data = {}  # Clear chat data
     reply_keyboard = [['Driver', 'Hitcher or Customer']]
     update.message.reply_text(Messages.WELCOME_MESSAGE)
     update.message.reply_text(
@@ -174,6 +173,7 @@ def location_pickup(update, context):
     context.chat_data['location_pickup'] = user_location
 
     update.message.reply_text(Messages.LOCATION_NUM_DROPOFF_REQUEST)
+    context.chat_data['location_dropoffs'] = []  # Clear the data if there are any
     return NUM_DROPOFFS
 
 
