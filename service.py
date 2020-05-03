@@ -21,6 +21,7 @@ from helpers.helpers import (check_request_exists, check_search_user_valid,
                              get_location, get_location_json,
                              get_locations_json)
 from matcher.matcher import Matcher
+from common.regex import RegexExpressions
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -516,13 +517,21 @@ def main():
         ],
         states={
             ROLE: [MessageHandler(Filters.regex(r'^(Driver|Hitcher or Customer)$'), role)],
-            LOCATION_PICKUP: [MessageHandler(Filters.regex(r'^[^\*]'), location_pickup)],
+            LOCATION_PICKUP: [
+                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), location_pickup)
+            ],
             NUM_DROPOFFS: [MessageHandler(Filters.regex(r'^[0-9]*$'), num_dropoffs)],
-            LOCATION_DROPOFF: [MessageHandler(Filters.regex(r'^[^\*]'), location_dropoff)],
+            LOCATION_DROPOFF: [
+                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), location_dropoff)
+            ],
             PRICE: [MessageHandler(Filters.regex(r'^[0-9]+(\.[0-9][0-9])?$'), price)],
-            TIME: [MessageHandler(Filters.regex(r'^[^\*]'), time)],
-            PACKAGE_TYPE: [MessageHandler(Filters.regex(r'^[^\*]'), package_type)],
-            ADDITIONAL_INFO: [MessageHandler(Filters.regex(r'^[^\*]'), additional_info)]
+            TIME: [MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), time)],
+            PACKAGE_TYPE: [
+                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), package_type)
+            ],
+            ADDITIONAL_INFO: [
+                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), additional_info)
+            ]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
