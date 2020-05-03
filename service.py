@@ -11,7 +11,7 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler,
                           ConversationHandler, Filters, MessageHandler,
                           Updater)
 
-from common.constants import RoleType, StateType
+from common.constants import RegExpressions, RoleType, StateType
 from common.exceptions import NoUserNameException
 from common.messages import Errors, Messages
 from common.models import Blacklist, Report, Request
@@ -21,7 +21,6 @@ from helpers.helpers import (check_request_exists, check_search_user_valid,
                              get_location, get_location_json,
                              get_locations_json)
 from matcher.matcher import Matcher
-from common.regex import RegexExpressions
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -518,19 +517,21 @@ def main():
         states={
             ROLE: [MessageHandler(Filters.regex(r'^(Driver|Hitcher or Customer)$'), role)],
             LOCATION_PICKUP: [
-                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), location_pickup)
+                MessageHandler(Filters.regex(RegExpressions.NO_COMMAND_SLASH), location_pickup)
             ],
-            NUM_DROPOFFS: [MessageHandler(Filters.regex(r'^[0-9]*$'), num_dropoffs)],
+            NUM_DROPOFFS: [MessageHandler(Filters.regex(RegExpressions.NUMBER), num_dropoffs)],
             LOCATION_DROPOFF: [
-                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), location_dropoff)
+                MessageHandler(Filters.regex(RegExpressions.NO_COMMAND_SLASH), location_dropoff)
             ],
-            PRICE: [MessageHandler(Filters.regex(r'^[0-9]+(\.[0-9][0-9])?$'), price)],
-            TIME: [MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), time)],
+            PRICE: [
+                MessageHandler(Filters.regex(RegExpressions.PRICE), price)
+            ],
+            TIME: [MessageHandler(Filters.regex(RegExpressions.NO_COMMAND_SLASH), time)],
             PACKAGE_TYPE: [
-                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), package_type)
+                MessageHandler(Filters.regex(RegExpressions.NO_COMMAND_SLASH), package_type)
             ],
             ADDITIONAL_INFO: [
-                MessageHandler(Filters.regex(RegexExpressions.NO_COMMAND_SLASH), additional_info)
+                MessageHandler(Filters.regex(RegExpressions.NO_COMMAND_SLASH), additional_info)
             ]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
