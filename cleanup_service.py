@@ -2,10 +2,7 @@ import logging
 import time
 from datetime import datetime
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from common.constants import RoleType, StateType
+from common.constants import StateType
 from common.models import Blacklist, Report, Request
 from common.mysql_connector import MySQLConnector
 from matcher.matcher import Matcher

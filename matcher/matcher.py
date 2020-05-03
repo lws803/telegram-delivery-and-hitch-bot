@@ -1,6 +1,7 @@
 import redis
 from datetime import datetime
 import logging
+import os
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -11,10 +12,11 @@ logger = logging.getLogger(__name__)
 
 class Matcher:
     def __init__(self):
-        self.redis_connector = redis.Redis(host='localhost', port=6379, db=0)
+        self.redis_connector = redis.Redis(host=os.environ.get('REDIS_PROD'), port=6379, db=0)
 
     def add_match(self, my_chat_id, other_chat_id):
         epoch = datetime.utcfromtimestamp(0)
+
         def unix_time_millis(dt):
             return (dt - epoch).total_seconds() * 1000.0
         try:

@@ -55,3 +55,6 @@ target/
 
 
 /venv
+
+# Docker credentials
+*.env
