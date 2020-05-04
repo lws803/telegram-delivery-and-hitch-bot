@@ -16,7 +16,6 @@ MYSQL_PROD
 REDIS_PROD
 TELE_KEY_PROD
 GOOGLE_API_KEY  # For google maps
-TZ  # For time zone info
 ```
 4. Run alembic script `alembic upgrade head`
 5. Run the main service
