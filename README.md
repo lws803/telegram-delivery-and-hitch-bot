@@ -13,6 +13,7 @@ pip install -r requirements.txt
 3. Setup the following environment variables
 ```bash
 MYSQL_PROD
+REDIS_PROD
 TELE_KEY_PROD
 GOOGLE_API_KEY  # For google maps
 ```
