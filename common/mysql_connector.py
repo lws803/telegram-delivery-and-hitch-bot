@@ -4,6 +4,8 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from helpers.helpers import retry_on_connection_error
+
 
 class MySQLConnector:
     def __init__(self):
@@ -13,6 +15,7 @@ class MySQLConnector:
         self.Session = sessionmaker(bind=mysql_engine)
 
     @contextmanager
+    @retry_on_connection_error(3)
     def session(self):
         session = self.Session()
         try:

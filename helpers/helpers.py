@@ -2,6 +2,8 @@ import json
 import logging
 
 import geocoder
+from retry.api import retry_call
+from sqlalchemy.exc import DisconnectionError, OperationalError, TimeoutError
 
 from common.constants import RoleType, StateType
 from common.exceptions import InvalidCommandException, NoRequestExistException
@@ -74,3 +76,21 @@ def check_search_user_valid(db_session, update):
         logger.warning(f'Customer used an invalid command {update.message.chat_id}')
         update.message.reply_text(Errors.FEATURE_INVALID % 'drivers')
         raise InvalidCommandException
+
+
+def retry_on_connection_error(num_attempts, logger=None):
+    def decorator(func):
+        def decorated(*args, **kwargs):
+            def call_func():
+                return func(*args, **kwargs)
+            return retry_call(
+                call_func,
+                tries=num_attempts,
+                exceptions=(OperationalError, DisconnectionError, TimeoutError),
+                delay=1,
+                backoff=2,
+                max_delay=30,
+                logger=logger
+            )
+        return decorated
+    return decorator

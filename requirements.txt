@@ -5,3 +5,4 @@ alembic
 mysql-connector-python
 redis
 geocoder
+retry
