@@ -12,14 +12,14 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler,
                           Updater)
 
 from common.constants import RegExpressions, RoleType, StateType
-from common.exceptions import NoUserNameException
+from common.exceptions import NoUserNameException, UserBannedException
 from common.messages import Errors, Messages
-from common.models import Blacklist, Report, Request
+from common.models import Report, Request
 from common.mysql_connector import MySQLConnector
 from helpers.filters import ResultFilters
-from helpers.helpers import (check_request_exists, check_search_user_valid,
-                             get_location, get_location_json,
-                             get_locations_json)
+from helpers.helpers import (check_blacklist, check_request_exists,
+                             check_search_user_valid, get_location,
+                             get_location_json, get_locations_json)
 from matcher.matcher import Matcher
 
 # Enable logging
@@ -127,10 +127,17 @@ def validate_add_to_db(context, update):
 
 
 def start(update, context):
+    user = update.message.from_user
     with mysql_connector.session() as db_session:
-        if db_session.query(Blacklist).filter_by(chat_id=update.message.chat_id).one_or_none():
-            update.message.reply_text(Errors.BAN_MESSAGE)
+        try:
+            check_blacklist(db_session, update.message.chat_id)
+        except UserBannedException as e:
+            update.message.reply_text(str(e))
+            logger.info("User %s was blacklisted and tried to access bot.", user.first_name)
             return ConversationHandler.END
+        except Exception:
+            return ConversationHandler.END
+
 
     reply_keyboard = [['Driver', 'Hitcher or Customer']]
     update.message.reply_text(Messages.WELCOME_MESSAGE)
@@ -287,9 +294,15 @@ def cancel(update, context):
 
 
 def help_me(update, context):
+    user = update.message.from_user
     with mysql_connector.session() as db_session:
-        if db_session.query(Blacklist).filter_by(chat_id=update.message.chat_id).one_or_none():
-            update.message.reply_text(Errors.BAN_MESSAGE)
+        try:
+            check_blacklist(db_session, update.message.chat_id)
+        except UserBannedException as e:
+            update.message.reply_text(str(e))
+            logger.info("User %s was blacklisted and tried to access bot.", user.first_name)
+            return ConversationHandler.END
+        except Exception:
             return ConversationHandler.END
 
     update.message.reply_text(Messages.HELP_MESSAGE,

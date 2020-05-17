@@ -9,3 +9,7 @@ class NoRequestExistException(Exception):
 
 class InvalidCommandException(Exception):
     pass
+
+
+class UserBannedException(Exception):
+    pass

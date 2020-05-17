@@ -6,9 +6,10 @@ from retry.api import retry_call
 from sqlalchemy.exc import DisconnectionError, OperationalError, TimeoutError
 
 from common.constants import RoleType, StateType
-from common.exceptions import InvalidCommandException, NoRequestExistException
+from common.exceptions import (InvalidCommandException,
+                               NoRequestExistException, UserBannedException)
 from common.messages import Errors
-from common.models import Request
+from common.models import Blacklist, Request
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -94,3 +95,9 @@ def retry_on_connection_error(num_attempts, logger=None):
             )
         return decorated
     return decorator
+
+
+@retry_on_connection_error(3, logger)
+def check_blacklist(db_session, chat_id):
+    if db_session.query(Blacklist).filter_by(chat_id=chat_id).one_or_none():
+        raise UserBannedException(Errors.BAN_MESSAGE)

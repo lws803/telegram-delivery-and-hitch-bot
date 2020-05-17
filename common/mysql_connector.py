@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import contextmanager
 
@@ -5,7 +6,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 
-from helpers.helpers import retry_on_connection_error
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 
 class MySQLConnector:
@@ -13,18 +18,22 @@ class MySQLConnector:
         mysql_engine = create_engine(
             os.environ.get('MYSQL_PROD')
         )
-        self.Session = sessionmaker(bind=mysql_engine)
+        try:
+            self.Session = sessionmaker(bind=mysql_engine)
+        except Exception:
+            logger.warning(str(Exception))
 
     @contextmanager
-    @retry_on_connection_error(3)
     def session(self):
         session = self.Session()
         try:
             yield session
             session.commit()
         except OperationalError:
+            logger.warning(str(OperationalError))
             raise
         except Exception:
+            logger.warning(str(Exception))
             session.rollback()
             raise
         finally:
