@@ -6,6 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 
+from common.exceptions import SessionRollBackException
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -33,6 +35,8 @@ class MySQLConnector:
             logger.warning(str(OperationalError))
             raise
         except Exception:
+            if "Can't reconnect until invalid transaction is rolled back" in str(Exception):
+                raise SessionRollBackException(str(Exception))
             logger.warning(str(Exception))
             session.rollback()
             raise

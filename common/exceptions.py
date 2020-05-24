@@ -13,3 +13,7 @@ class InvalidCommandException(Exception):
 
 class UserBannedException(Exception):
     pass
+
+
+class SessionRollBackException(Exception):
+    pass

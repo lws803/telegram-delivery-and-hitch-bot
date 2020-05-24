@@ -1,15 +1,16 @@
 import json
 import logging
 
-import geocoder
-from retry.api import retry_call
 from sqlalchemy.exc import DisconnectionError, OperationalError, TimeoutError
 
+import geocoder
 from common.constants import RoleType, StateType
 from common.exceptions import (InvalidCommandException,
-                               NoRequestExistException, UserBannedException)
+                               NoRequestExistException,
+                               SessionRollBackException, UserBannedException)
 from common.messages import Errors
 from common.models import Blacklist, Request
+from retry.api import retry_call
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -87,7 +88,9 @@ def retry_on_connection_error(num_attempts, logger=None):
             return retry_call(
                 call_func,
                 tries=num_attempts,
-                exceptions=(OperationalError, DisconnectionError, TimeoutError),
+                exceptions=(
+                    OperationalError, DisconnectionError, TimeoutError, SessionRollBackException
+                ),
                 delay=1,
                 backoff=2,
                 max_delay=30,
