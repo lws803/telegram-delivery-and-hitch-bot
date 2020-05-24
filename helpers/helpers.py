@@ -100,7 +100,7 @@ def retry_on_connection_error(num_attempts, logger=None):
     return decorator
 
 
-@retry_on_connection_error(3, logger)
+@retry_on_connection_error(1, logger)
 def check_blacklist(db_session, chat_id):
     if db_session.query(Blacklist).filter_by(chat_id=chat_id).one_or_none():
         raise UserBannedException(Errors.BAN_MESSAGE)
