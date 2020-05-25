@@ -6,8 +6,7 @@ from sqlalchemy.exc import DisconnectionError, OperationalError, TimeoutError
 import geocoder
 from common.constants import RoleType, StateType
 from common.exceptions import (InvalidCommandException,
-                               NoRequestExistException,
-                               SessionRollBackException, UserBannedException)
+                               NoRequestExistException, UserBannedException)
 from common.messages import Errors
 from common.models import Blacklist, Request
 from retry.api import retry_call
@@ -89,7 +88,7 @@ def retry_on_connection_error(num_attempts, logger=None):
                 call_func,
                 tries=num_attempts,
                 exceptions=(
-                    OperationalError, DisconnectionError, TimeoutError, SessionRollBackException
+                    OperationalError, DisconnectionError, TimeoutError
                 ),
                 delay=1,
                 backoff=2,

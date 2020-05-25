@@ -31,12 +31,7 @@ class MySQLConnector:
         try:
             yield session
             session.commit()
-        except OperationalError:
-            logger.warning(str(OperationalError))
-            raise
         except Exception:
-            if "Can't reconnect until invalid transaction is rolled back" in str(Exception):
-                raise SessionRollBackException(str(Exception))
             logger.warning(str(Exception))
             session.rollback()
             raise
