@@ -3,7 +3,6 @@ import os
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 
 # Enable logging
