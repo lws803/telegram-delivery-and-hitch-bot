@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class MySQLConnector:
     def __init__(self):
+        self.session = None
         self._start_session()
 
     def _start_session(self):
