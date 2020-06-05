@@ -233,12 +233,11 @@ def price(update, context):
 def time(update, context):
     user = update.message.from_user
     cal = parsedatetime.Calendar()
-    to_zone = tz.gettz(os.environ['TZ'])
     utc = tz.gettz('utc')
 
     time_struct, parse_status = cal.parse(update.message.text)
     local_time = datetime(*time_struct[:6])
-    utc_time = local_time.replace(tzinfo=to_zone).astimezone(utc)
+    utc_time = local_time.astimezone(utc)
     if not parse_status:
         update.message.reply_text(
             Errors.INCORRECT_TIME
@@ -250,7 +249,7 @@ def time(update, context):
     logger.info(
         'Time of %s at %s',
         user.first_name,
-        str(datetime(*time_struct[:6]))
+        str(utc_time)
     )
     update.message.reply_text(Messages.PACKAGE_REQUEST)
 
