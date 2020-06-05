@@ -54,7 +54,12 @@ def listing_formatter(request):
             'Additional information:\n'
             f'{request.additional_info}'
         )
-    time_format = request.time.strftime('%d, %b %Y %I:%M %p')
+    to_zone = tz.gettz(os.environ['TZ'])
+    utc = tz.gettz('utc')
+
+    time_format = (
+        request.time.replace(tzinfo=utc).astimezone(to_zone).strftime('%d, %b %Y %I:%M %p')
+    )
     pickup_location = json.loads(request.location_pickup)['text']
     dropoff_locations = json.loads(request.location_dropoffs)
     dropoff_text = 'Dropoffs:'
