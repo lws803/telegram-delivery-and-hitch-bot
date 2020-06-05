@@ -236,8 +236,8 @@ def time(update, context):
     utc_time = local_time.replace(tzinfo=to_zone).astimezone(utc)
     if any((
         not parse_status,
-        (utc_time - datetime.utcnow().replace(tzinfo=utc)).total_seconds() > 86400,
-        (utc_time - datetime.utcnow().replace(tzinfo=utc)).total_seconds() < 0,
+        (utc_time - datetime.utcnow().replace(tzinfo=utc)).astimezone(utc).total_seconds() > 86400,
+        (utc_time - datetime.utcnow().replace(tzinfo=utc)).astimezone(utc).total_seconds() < 0,
     )):
         curr_local_time = datetime.utcnow().replace(tzinfo=utc).astimezone(to_zone)
         update.message.reply_text(
