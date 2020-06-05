@@ -55,7 +55,7 @@ def listing_formatter(request):
             f'{request.additional_info}'
         )
     to_zone = tz.gettz(os.environ['TZ'])
-    utc = tz.gettz('utc')
+    utc = tz.gettz('UTC')
 
     time_format = (
         request.time.replace(tzinfo=utc).astimezone(to_zone).strftime('%d, %b %Y %I:%M %p')
@@ -233,11 +233,10 @@ def price(update, context):
 def time(update, context):
     user = update.message.from_user
     cal = parsedatetime.Calendar()
-    utc = tz.gettz('utc')
-
+    utc = tz.gettz('UTC')
     time_struct, parse_status = cal.parse(update.message.text)
     local_time = datetime(*time_struct[:6])
-    utc_time = local_time.astimezone(utc)
+    utc_time = local_time.replace(tzinfo=tz.gettz(os.environ['TZ'])).astimezone(utc)
     if not parse_status:
         update.message.reply_text(
             Errors.INCORRECT_TIME
