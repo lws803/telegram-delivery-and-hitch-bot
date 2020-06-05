@@ -234,18 +234,14 @@ def time(update, context):
     time_struct, parse_status = cal.parse(update.message.text)
     local_time = datetime(*time_struct[:6])
     utc_time = local_time.replace(tzinfo=to_zone).astimezone(utc)
-    if any((
-        not parse_status,
-        (utc_time - datetime.utcnow().replace(tzinfo=utc).astimezone(utc)).total_seconds() > 86400,
-        (utc_time - datetime.utcnow().replace(tzinfo=utc).astimezone(utc)).total_seconds() < 0,
-    )):
+    if not parse_status:
         curr_local_time = datetime.utcnow().replace(tzinfo=utc).astimezone(to_zone)
         update.message.reply_text(
             Errors.INCORRECT_TIME % curr_local_time.strftime('%H:%M')
         )
         return TIME
 
-    context.chat_data['time'] = datetime(*time_struct[:6])
+    context.chat_data['time'] = utc_time
 
     logger.info(
         'Time of %s at %s',

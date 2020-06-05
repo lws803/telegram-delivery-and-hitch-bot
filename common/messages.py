@@ -4,7 +4,7 @@ class Errors:
     BAN_MESSAGE = 'You have been banned, please contact administrator for help.'
     INCORRECT_TIME = (
         'Preferred time could not be recognized.\n'
-        'Please enter a time that is past and within 24 hours of %s.'
+        'Try something like "10pm".'
     )
     LENGTH_TOO_LONG = 'Message length is too long, please keep within 250 characters.'
     GENERIC_ERROR = 'Error encountered please contact adminstrator.'
