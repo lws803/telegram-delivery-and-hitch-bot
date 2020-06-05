@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
     match_session = Matcher()
-    mysql_connector = MySQLConnector()
-
     epoch = datetime.utcfromtimestamp(0)
 
     def unix_time_millis(dt):
@@ -41,6 +39,7 @@ if __name__ == '__main__':
                         logger.warning(str(e))
 
         # Check staleness
+        mysql_connector = MySQLConnector()
         with mysql_connector.session() as db_session:
             stale_chat_ids = []
             for request in db_session.query(Request).all():
