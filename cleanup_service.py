@@ -20,6 +20,7 @@ if __name__ == '__main__':
     mysql_connector = MySQLConnector()
 
     epoch = datetime.utcfromtimestamp(0)
+
     def unix_time_millis(dt):
         return (dt - epoch).total_seconds() * 1000.0
 
@@ -29,7 +30,7 @@ if __name__ == '__main__':
             key = key.decode('utf-8')
             if ':' in key and match_session.get_match_update_date(key) is not None:
                 time_diff = abs(
-                    match_session.get_match_update_date(key) - unix_time_millis(datetime.now())
+                    match_session.get_match_update_date(key) - unix_time_millis(datetime.utcnow())
                 )
                 # Matched for more than an hour
                 if time_diff > (60 * 60 * 1000):
@@ -46,11 +47,11 @@ if __name__ == '__main__':
                 if request.state == StateType.DONE:
                     continue
                 if request.time is not None:
-                    time_diff = (datetime.now() - request.time).total_seconds()
+                    time_diff = (datetime.utcnow() - request.time).total_seconds()
                     if time_diff > (60 * 60):
                         stale_chat_ids.append(request.chat_id)
                 else:
-                    time_diff = (datetime.now() - request.last_updated).total_seconds()
+                    time_diff = (datetime.utcnow() - request.last_updated).total_seconds()
                     # 1 Hour allowed for merchants
                     if time_diff > (60 * 60):
                         stale_chat_ids.append(request.chat_id)

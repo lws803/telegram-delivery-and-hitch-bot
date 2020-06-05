@@ -21,6 +21,7 @@ from helpers.helpers import (check_blacklist, check_request_exists,
                              check_search_user_valid, get_location,
                              get_location_json, get_locations_json)
 from matcher.matcher import Matcher
+from dateutil import tz
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -230,11 +231,12 @@ def time(update, context):
     time_struct, parse_status = cal.parse(update.message.text)
     if any((
         not parse_status,
-        (datetime(*time_struct[:6]) - datetime.now()).total_seconds() > 86400,
-        (datetime(*time_struct[:6]) - datetime.now()).total_seconds() < 0,
+        (datetime(*time_struct[:6]) - datetime.utcnow()).total_seconds() > 86400,
+        (datetime(*time_struct[:6]) - datetime.utcnow()).total_seconds() < 0,
     )):
+        to_zone = tz.gettz(os.environ['TZ'])
         update.message.reply_text(
-            Errors.INCORRECT_TIME % datetime.now().strftime('%H:%M')
+            Errors.INCORRECT_TIME % datetime.utcnow().astimezone(to_zone).strftime('%H:%M')
         )
         return TIME
 
@@ -295,6 +297,8 @@ def cancel(update, context):
 
 def help_me(update, context):
     user = update.message.from_user
+    # FIXME: Move this with mysql_connector.session() as db_session: chunk to another method
+    # wrap it with retry connection
     with mysql_connector.session() as db_session:
         try:
             check_blacklist(db_session, update.message.chat_id)

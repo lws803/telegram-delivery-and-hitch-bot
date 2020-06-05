@@ -21,7 +21,7 @@ class Matcher:
             return (dt - epoch).total_seconds() * 1000.0
         try:
             self.redis_connector.set(
-                f'{my_chat_id}:{other_chat_id}', unix_time_millis(datetime.now())
+                f'{my_chat_id}:{other_chat_id}', unix_time_millis(datetime.utcnow())
             )
         except Exception as e:
             logger.warning(str(e))
