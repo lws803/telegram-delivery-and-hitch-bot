@@ -233,7 +233,7 @@ def time(update, context):
 
     time_struct, parse_status = cal.parse(update.message.text)
     local_time = datetime(*time_struct[:6])
-    utc_time = local_time.replace(tzinfo=local_time).astimezone(utc)
+    utc_time = local_time.replace(tzinfo=to_zone).astimezone(utc)
     if any((
         not parse_status,
         (utc_time - datetime.utcnow().replace(tzinfo=utc)).total_seconds() > 86400,
