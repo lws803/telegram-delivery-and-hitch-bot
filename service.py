@@ -228,15 +228,20 @@ def price(update, context):
 def time(update, context):
     user = update.message.from_user
     cal = parsedatetime.Calendar()
+    to_zone = tz.gettz(os.environ['TZ'])
+    utc = tz.gettz('utc')
+
     time_struct, parse_status = cal.parse(update.message.text)
+    local_time = datetime(*time_struct[:6])
+    utc_time = local_time.replace(tzinfo=local_time).astimezone(utc)
     if any((
         not parse_status,
-        (datetime(*time_struct[:6]) - datetime.utcnow()).total_seconds() > 86400,
-        (datetime(*time_struct[:6]) - datetime.utcnow()).total_seconds() < 0,
+        (utc_time - datetime.utcnow().replace(tzinfo=utc)).total_seconds() > 86400,
+        (utc_time - datetime.utcnow().replace(tzinfo=utc)).total_seconds() < 0,
     )):
-        to_zone = tz.gettz(os.environ['TZ'])
+        curr_local_time = datetime.utcnow().replace(tzinfo=utc).astimezone(to_zone)
         update.message.reply_text(
-            Errors.INCORRECT_TIME % datetime.utcnow().astimezone(to_zone).strftime('%H:%M')
+            Errors.INCORRECT_TIME % curr_local_time.strftime('%H:%M')
         )
         return TIME
 
