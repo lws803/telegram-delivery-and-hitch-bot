@@ -235,9 +235,8 @@ def time(update, context):
     local_time = datetime(*time_struct[:6])
     utc_time = local_time.replace(tzinfo=to_zone).astimezone(utc)
     if not parse_status:
-        curr_local_time = datetime.utcnow().replace(tzinfo=utc).astimezone(to_zone)
         update.message.reply_text(
-            Errors.INCORRECT_TIME % curr_local_time.strftime('%H:%M')
+            Errors.INCORRECT_TIME
         )
         return TIME
 
