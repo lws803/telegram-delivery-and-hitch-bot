@@ -3,14 +3,15 @@ import logging
 import os
 from datetime import datetime
 
-import parsedatetime
 import telegram.ext
+from dateutil import tz
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                       ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (CallbackQueryHandler, CommandHandler,
                           ConversationHandler, Filters, MessageHandler,
                           Updater)
 
+import parsedatetime
 from common.constants import RegExpressions, RoleType, StateType
 from common.exceptions import NoUserNameException, UserBannedException
 from common.messages import Errors, Messages
@@ -21,7 +22,6 @@ from helpers.helpers import (check_blacklist, check_request_exists,
                              check_search_user_valid, get_location,
                              get_location_json, get_locations_json)
 from matcher.matcher import Matcher
-from dateutil import tz
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
